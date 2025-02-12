@@ -1,0 +1,77 @@
+register and login with cookies
+in selenium
+
+                                                                                          step 01 get cookies
+
+import pickle
+import time
+from selenium import webdriver
+
+driver = webdriver.Chrome()
+driver.maximize_window()
+
+# Credentials and URL
+username = "standard_user"
+password = "secret_sauce"
+login_url = "https://www.saucedemo.com/"
+
+driver.get(login_url)
+time.sleep(5)  # Allow page to load
+
+# ////
+username_field = driver.find_element(By.ID, "user-name")
+password_field = driver.find_element(By.ID, "password")
+
+# Enter credentials
+username_field.send_keys(username)
+password_field.send_keys(password)
+
+# Locate and click the login button
+login_button = driver.find_element(By.ID, "login-button")
+assert not login_button.get_attribute("disabled")  # Ensure button is enabled
+login_button.click()
+
+# ////
+# Step 2: Load cookies
+time.sleep(5)
+
+cookies = driver.get_cookies()
+pickle.dump(cookies, open("cookies.pkl", "wb"))
+# Step 3: Refresh to apply cookies
+driver.refresh()
+time.sleep(5)
+
+                                                                                          step 02 LOAD cookies
+import pickle
+import time
+from selenium import webdriver
+
+# 🔹 SauceDemo URL
+website_url = "https://www.saucedemo.com/"
+
+# 🔹 Initialize WebDriver
+browser = webdriver.Chrome()
+browser.get(website_url)
+time.sleep(3)  # Wait for page to load
+
+# 🔹 Load cookies from file and add them to the browser
+try:
+    with open("cookies.pkl", "rb") as file:
+        cookies = pickle.load(file)
+        for cookie in cookies:
+            cookie["domain"] = ".saucedemo.com"  # Ensure correct domain
+            browser.add_cookie(cookie)
+    print("✅ Cookies added successfully!")
+except FileNotFoundError:
+    print("❌ No cookies file found! Please log in manually and save cookies first.")
+
+# 🔹 Refresh the page to apply cookies
+browser.refresh()
+time.sleep(5)
+
+# Keep browser open for verification
+browser.get("https://www.saucedemo.com/inventory.html")
+# time.sleep(60)
+# browser.quit()
+
+
